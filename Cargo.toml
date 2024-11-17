@@ -1,0 +1,12 @@
+[workspace]
+members = ["papirus-core", "papirus-tui"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["Nikhil Prabhu <nikhilprabhu98@gmail.com>"]
+description = "Cross-platform, simple REST API TUI client."
+repository = "https://github.com/nikhil-prabhu/pAPIrus"
+license = "GPL-3"
+readme = "README.md"

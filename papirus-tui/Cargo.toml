@@ -1,0 +1,10 @@
+[package]
+name = "papirus-tui"
+version = "0.1.0"
+edition = "2021"
+authors.workspace = true
+description = "TUI interface for pAPIrus"
+repository.workspace = true
+license.workspace = true
+
+[dependencies]

@@ -1,0 +1,10 @@
+[package]
+name = "papirus-core"
+version = "0.1.0"
+edition = "2021"
+authors.workspace = true
+description = "Core functionality library for pAPIrus"
+repository.workspace = true
+license.workspace = true
+
+[dependencies]
