@@ -5,7 +5,6 @@ use cursive::style::BaseColor;
 use cursive::theme::{BorderStyle, Theme};
 use cursive::theme::{Color, Palette, PaletteColor};
 use cursive::traits::Resizable;
-use cursive::views::Dialog;
 
 use crate::views::app::app_view;
 
@@ -14,7 +13,7 @@ fn main() {
 
     siv.set_theme(default_theme());
     siv.set_window_title("pAPIrus");
-    siv.add_fullscreen_layer(Dialog::around(app_view()).title("pAPIrus").full_screen());
+    siv.add_fullscreen_layer(app_view().full_screen());
 
     siv.run();
 }

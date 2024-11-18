@@ -1,10 +1,11 @@
 use cursive::align::HAlign;
 use cursive::traits::{Nameable, Resizable};
-use cursive::views::{Button, DummyView, EditView, LinearLayout, SelectView};
+use cursive::view::Margins;
+use cursive::views::{Button, Dialog, DummyView, EditView, LinearLayout, SelectView};
 
 use crate::types::HttpMethod;
 
-pub(crate) fn input_view() -> LinearLayout {
+pub(crate) fn input_view() -> Dialog {
     let mut layout = LinearLayout::horizontal();
 
     let mut method_select = SelectView::new().h_align(HAlign::Center).popup();
@@ -31,5 +32,7 @@ pub(crate) fn input_view() -> LinearLayout {
     layout.add_child(DummyView::new().fixed_width(2));
     layout.add_child(send_button.fixed_width(10).with_name("send_request_button"));
 
-    layout
+    Dialog::around(layout)
+        .title("Press <Enter> to send request")
+        .padding(Margins::lrtb(1, 1, 1, 1))
 }
