@@ -10,3 +10,7 @@ description = "Cross-platform, simple REST API TUI client."
 repository = "https://github.com/nikhil-prabhu/pAPIrus"
 license = "GPL-3"
 readme = "README.md"
+
+[profile.release]
+lto = true
+strip = true
