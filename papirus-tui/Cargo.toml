@@ -8,3 +8,4 @@ repository.workspace = true
 license.workspace = true
 
 [dependencies]
+cursive = "0.21.1"
