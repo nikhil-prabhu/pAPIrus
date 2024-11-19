@@ -10,3 +10,4 @@ license.workspace = true
 [dependencies]
 cursive = "0.21.1"
 cursive-tabs = "0.8.0"
+syntect = "5.2.0"
