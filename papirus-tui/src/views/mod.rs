@@ -4,13 +4,43 @@ pub(crate) mod request;
 pub(crate) mod response;
 
 use cursive::theme::{BaseColor, Color, Style};
+use cursive::traits::Resizable;
+use cursive::views::{LinearLayout, TextView};
 use cursive::{Printer, Vec2, View};
+use std::time::Duration;
 use syntect::easy::HighlightLines;
 use syntect::highlighting::{Style as SyntectStyle, ThemeSet};
 use syntect::parsing::SyntaxSet;
 
+use crate::utils::format_duration;
+
+pub(crate) struct ResponseInfoView {
+    layout: LinearLayout,
+}
+
 pub(crate) struct CodeView {
     code_lines: Vec<(String, Vec<(SyntectStyle, String)>)>,
+}
+
+impl ResponseInfoView {
+    pub(crate) fn new(status_code: &str, duration: Duration, response_size: usize) -> Self {
+        let mut layout = LinearLayout::horizontal();
+
+        // Create text views for each piece of information
+        let status_view = TextView::new(format!("Status: {}", status_code)).full_width();
+
+        let duration_view =
+            TextView::new(format!("Time: {}", format_duration(duration))).full_width();
+
+        let size_view = TextView::new(format!("Size: {} B", response_size)).full_width();
+
+        // Add components to the horizontal layout
+        layout.add_child(status_view);
+        layout.add_child(duration_view);
+        layout.add_child(size_view);
+
+        Self { layout }
+    }
 }
 
 impl CodeView {
@@ -40,6 +70,20 @@ impl CodeView {
             .collect();
 
         Self { code_lines }
+    }
+}
+
+impl View for ResponseInfoView {
+    fn draw(&self, printer: &Printer) {
+        self.layout.draw(printer);
+    }
+
+    fn layout(&mut self, size: Vec2) {
+        self.layout.layout(size);
+    }
+
+    fn required_size(&mut self, constraint: Vec2) -> Vec2 {
+        self.layout.required_size(constraint)
     }
 }
 

@@ -1,4 +1,5 @@
 pub(crate) mod types;
+pub(crate) mod utils;
 pub(crate) mod views;
 
 use cursive::traits::Resizable;
