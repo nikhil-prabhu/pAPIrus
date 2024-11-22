@@ -7,6 +7,10 @@ description = "TUI interface for pAPIrus"
 repository.workspace = true
 license.workspace = true
 
+[[bin]]
+name = "papirus"
+path = "src/main.rs"
+
 [dependencies]
 cursive = { version = "0.21.1", features = ["toml"] }
 cursive-tabs = "0.8.0"
