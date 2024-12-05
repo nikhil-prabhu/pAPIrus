@@ -1,9 +1,11 @@
-use super::Component;
-use crate::{action::Action, config::Config};
 use color_eyre::Result;
-use ratatui::{prelude::*, widgets::*};
+use crossterm::event::{MouseEvent, MouseEventKind};
+use ratatui::prelude::*;
 use tokio::sync::mpsc::UnboundedSender;
 use tui_big_text::{BigTextBuilder, PixelSize};
+
+use super::Component;
+use crate::{action::Action, config::Config};
 
 #[derive(Default)]
 pub struct Home {
@@ -35,6 +37,9 @@ impl Component for Home {
             }
             Action::Render => {
                 // add any logic here that should run on every render
+            }
+            Action::Mouse(MouseEvent { kind: MouseEventKind::Down(_), .. }) => {
+                // add any logic here that should run on every mouse click (down)
             }
             _ => {}
         }
