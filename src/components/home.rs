@@ -90,8 +90,8 @@ impl Component for Home {
             .title_alignment(Alignment::Center);
 
         let main_area = Layout::vertical([
-            Constraint::Min(1),
-            Constraint::Min(3),
+            Constraint::Length(2),
+            Constraint::Length(3),
             Constraint::Percentage(100),
         ]).split(area);
         let title_area = main_area[0];
