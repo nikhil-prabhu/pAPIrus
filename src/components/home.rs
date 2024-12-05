@@ -1,16 +1,34 @@
 use color_eyre::Result;
 use crossterm::event::{MouseEvent, MouseEventKind};
-use ratatui::prelude::*;
 use ratatui::widgets::{Block, Borders};
+use ratatui::prelude::*;
 use tokio::sync::mpsc::UnboundedSender;
 
 use super::Component;
 use crate::{action::Action, config::Config, PKG_NAME};
 
+/// The current area of focus.
+#[derive(Default, Copy, Clone, PartialEq)]
+enum Focus {
+    #[default]
+    Home,
+}
+
+/// A clickable area on the screen.
+#[derive(Default)]
+struct Clickable {
+    /// The rectangular area of the clickable.
+    rect: Rect,
+    /// The focus ID that should be set when the clickable is clicked.
+    focus: Focus,
+}
+
 #[derive(Default)]
 pub struct Home {
     command_tx: Option<UnboundedSender<Action>>,
     config: Config,
+    focus: Focus,
+    clickable: Vec<Clickable>,
 }
 
 impl Home {
@@ -30,6 +48,28 @@ impl Component for Home {
         Ok(())
     }
 
+    fn handle_mouse_event(&mut self, mouse: MouseEvent) -> Result<Option<Action>> {
+        match mouse {
+            MouseEvent {
+                kind: MouseEventKind::Down(_),
+                column,
+                row,
+                ..
+            } => {
+                for c in &self.clickable {
+                    self.focus = Focus::Home;
+
+                    if c.rect.contains(Position { x: column, y: row }) {
+                        self.focus = c.focus;
+                    }
+                }
+            }
+            _ => {}
+        }
+
+        Ok(None)
+    }
+
     fn update(&mut self, action: Action) -> Result<Option<Action>> {
         match action {
             Action::Tick => {
@@ -37,12 +77,6 @@ impl Component for Home {
             }
             Action::Render => {
                 // add any logic here that should run on every render
-            }
-            Action::Mouse(MouseEvent {
-                kind: MouseEventKind::Down(_),
-                ..
-            }) => {
-                // add any logic here that should run on every mouse click (down)
             }
             _ => {}
         }
@@ -59,8 +93,7 @@ impl Component for Home {
             Constraint::Min(1),
             Constraint::Min(3),
             Constraint::Percentage(100),
-        ])
-        .split(area);
+        ]).split(area);
         let title_area = main_area[0];
         let _url_area = main_area[1];
         let [_req_area, _resp_area] =

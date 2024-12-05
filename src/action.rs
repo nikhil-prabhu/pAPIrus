@@ -1,4 +1,3 @@
-use crossterm::event::MouseEvent;
 use serde::{Deserialize, Serialize};
 use strum::Display;
 
@@ -11,7 +10,6 @@ pub enum Action {
     Resume,
     Quit,
     ClearScreen,
-    Mouse(MouseEvent),
     Error(String),
     Help,
 }

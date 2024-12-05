@@ -95,7 +95,6 @@ impl App {
             Event::Render => action_tx.send(Action::Render)?,
             Event::Resize(x, y) => action_tx.send(Action::Resize(x, y))?,
             Event::Key(key) => self.handle_key_event(key)?,
-            Event::Mouse(mouse) => action_tx.send(Action::Mouse(mouse))?,
             _ => {}
         }
         for component in self.components.iter_mut() {
