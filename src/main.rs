@@ -13,6 +13,8 @@ mod errors;
 mod logging;
 mod tui;
 
+pub const PKG_NAME: &str = env!("CARGO_PKG_NAME");
+
 #[tokio::main]
 async fn main() -> Result<()> {
     errors::init()?;

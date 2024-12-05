@@ -1,11 +1,11 @@
 use color_eyre::Result;
 use crossterm::event::{MouseEvent, MouseEventKind};
 use ratatui::prelude::*;
+use ratatui::widgets::{Block, Borders};
 use tokio::sync::mpsc::UnboundedSender;
-use tui_big_text::{BigTextBuilder, PixelSize};
 
 use super::Component;
-use crate::{action::Action, config::Config};
+use crate::{action::Action, config::Config, PKG_NAME};
 
 #[derive(Default)]
 pub struct Home {
@@ -38,7 +38,10 @@ impl Component for Home {
             Action::Render => {
                 // add any logic here that should run on every render
             }
-            Action::Mouse(MouseEvent { kind: MouseEventKind::Down(_), .. }) => {
+            Action::Mouse(MouseEvent {
+                kind: MouseEventKind::Down(_),
+                ..
+            }) => {
                 // add any logic here that should run on every mouse click (down)
             }
             _ => {}
@@ -47,12 +50,24 @@ impl Component for Home {
     }
 
     fn draw(&mut self, frame: &mut Frame, area: Rect) -> Result<()> {
-        let title = BigTextBuilder::default()
-            .pixel_size(PixelSize::Full)
-            .lines(["papirus".into()])
-            .build();
+        let title = Block::new()
+            .borders(Borders::TOP)
+            .title(format!(" {PKG_NAME} "))
+            .title_alignment(Alignment::Center);
 
-        frame.render_widget(title, area);
+        let main_area = Layout::vertical([
+            Constraint::Min(1),
+            Constraint::Min(3),
+            Constraint::Percentage(100),
+        ])
+        .split(area);
+        let title_area = main_area[0];
+        let _url_area = main_area[1];
+        let [_req_area, _resp_area] =
+            Layout::horizontal([Constraint::Percentage(50), Constraint::Percentage(50)])
+                .areas(main_area[2]);
+
+        frame.render_widget(title, title_area);
         Ok(())
     }
 }
