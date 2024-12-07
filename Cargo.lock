@@ -726,12 +726,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f81ec6369c545a7d40e4589b5597581fa1c441fe1cce96dd1de43159910a36a2"
 
 [[package]]
-name = "font8x8"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "875488b8711a968268c7cf5d139578713097ca4635a76044e8fe8eedf831d07e"
-
-[[package]]
 name = "form_urlencoded"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1890,7 +1884,7 @@ dependencies = [
  "tracing",
  "tracing-error",
  "tracing-subscriber",
- "tui-big-text",
+ "tui-textarea",
  "vergen-gix",
 ]
 
@@ -2698,15 +2692,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "tui-big-text"
+name = "tui-textarea"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8b046cf880cb40db75567b60ca22dc38a4165ef490be6bfad5718b22bcb6aabf"
+checksum = "0a5318dd619ed73c52a9417ad19046724effc1287fb75cdcc4eca1d6ac1acbae"
 dependencies = [
- "derive_builder",
- "font8x8",
- "itertools",
+ "crossterm",
  "ratatui",
+ "unicode-width 0.2.0",
 ]
 
 [[package]]
