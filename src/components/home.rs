@@ -1,35 +1,29 @@
 use color_eyre::Result;
 use crossterm::event::{KeyEvent, MouseEvent, MouseEventKind};
-use ratatui::widgets::{Block, Borders};
 use ratatui::prelude::*;
 use ratatui::style::Styled;
+use ratatui::widgets::{Block, Borders};
 use tokio::sync::mpsc::UnboundedSender;
 use tui_textarea::TextArea;
-use super::Component;
-use crate::{action::Action, config::Config, PKG_NAME};
 
-/// The current area of focus.
-#[derive(Default, Copy, Clone, PartialEq)]
-enum Focus {
-    #[default]
-    Url,
-    Home,
-}
+use super::Component;
+use crate::app::Mode;
+use crate::{action::Action, config::Config, PKG_NAME};
 
 /// A clickable area on the screen.
 #[derive(Default)]
 struct Clickable {
     /// The rectangular area of the clickable.
     rect: Rect,
-    /// The focus ID that should be set when the clickable is clicked.
-    focus: Focus,
+    /// The mode that should be set when the clickable is clicked.
+    mode: Mode,
 }
 
 #[derive(Default)]
 pub struct Home {
     command_tx: Option<UnboundedSender<Action>>,
     config: Config,
-    focus: Focus,
+    mode: Mode,
     clickable: Vec<Clickable>,
     url_input: TextArea<'static>,
 }
@@ -42,14 +36,14 @@ impl Home {
     fn render_url_input(&mut self, frame: &mut Frame, area: Rect) {
         self.clickable.push(Clickable {
             rect: area,
-            focus: Focus::Url,
+            mode: Mode::Url,
         });
 
         self.url_input.set_placeholder_text("Enter a URL...");
         self.url_input.set_cursor_line_style(Style::default().fg(Color::White));
 
         let info = "Press <Enter> to send request";
-        if self.focus == Focus::Url {
+        if self.mode == Mode::Url {
             self.url_input.set_block(Block::default().borders(Borders::ALL).set_style(Color::White).title(info));
         } else {
             self.url_input.set_block(Block::default().borders(Borders::ALL).set_style(Color::DarkGray).title(info));
@@ -71,8 +65,8 @@ impl Component for Home {
     }
 
     fn handle_key_event(&mut self, key: KeyEvent) -> Result<Option<Action>> {
-        match self.focus {
-            Focus::Url => {
+        match self.mode {
+            Mode::Url => {
                 // FIXME: Discard global key events when the URL input is focused
                 // FIXME: Disallow multiple lines in the URL input
                 self.url_input.input(key);
@@ -91,10 +85,10 @@ impl Component for Home {
                 ..
             } => {
                 for c in &self.clickable {
-                    self.focus = Focus::Home;
+                    self.mode = Mode::Home;
 
                     if c.rect.contains(Position { x: column, y: row }) {
-                        self.focus = c.focus;
+                        self.mode = c.mode;
                     }
                 }
             }
