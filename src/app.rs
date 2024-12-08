@@ -29,6 +29,7 @@ pub struct App {
 pub enum Mode {
     #[default]
     Url,
+    Request,
     Home,
 }
 
