@@ -11,8 +11,8 @@ use crate::{action::Action, config::Config, PKG_NAME};
 /// The current area of focus.
 #[derive(Default, Copy, Clone, PartialEq)]
 enum Focus {
-    Url,
     #[default]
+    Url,
     Home,
 }
 
