@@ -1,24 +1,17 @@
+use std::collections::HashMap;
+
 use color_eyre::Result;
 use crossterm::event::{KeyEvent, MouseEvent, MouseEventKind};
 use ratatui::prelude::*;
 use ratatui::style::{palette::tailwind, Styled};
 use ratatui::widgets::{Block, Borders, Padding, Paragraph, Tabs};
+use strum::{Display, EnumIter, FromRepr, IntoEnumIterator};
 use tokio::sync::mpsc::UnboundedSender;
 use tui_textarea::TextArea;
-use strum::{Display, EnumIter, FromRepr, IntoEnumIterator};
 
 use super::Component;
 use crate::app::Mode;
 use crate::{action::Action, config::Config, PKG_NAME};
-
-/// A clickable area on the screen.
-#[derive(Default)]
-struct Clickable {
-    /// The rectangular area of the clickable.
-    rect: Rect,
-    /// The mode that should be set when the clickable is clicked.
-    mode: Mode,
-}
 
 #[derive(Default, Display, FromRepr, EnumIter, Clone, Copy)]
 enum RequestTab {
@@ -38,7 +31,7 @@ pub struct Home {
     command_tx: Option<UnboundedSender<Action>>,
     config: Config,
     mode: Mode,
-    clickable: Vec<Clickable>,
+    clickable: HashMap<Mode, Rect>,
     url_input: TextArea<'static>,
     selected_req_tab: RequestTab,
 }
@@ -111,10 +104,7 @@ impl Home {
     }
 
     fn render_url_input(&mut self, frame: &mut Frame, area: Rect) {
-        self.clickable.push(Clickable {
-            rect: area,
-            mode: Mode::Url,
-        });
+        self.clickable.insert(Mode::Url, area);
 
         self.url_input.set_placeholder_text("Enter a URL...");
         self.url_input.set_cursor_line_style(Style::default().fg(Color::White));
@@ -130,6 +120,8 @@ impl Home {
     }
 
     fn render_tabs(&mut self, frame: &mut Frame, area: Rect) {
+        self.clickable.insert(Mode::Request, area);
+
         let mut block = Block::bordered().set_style(Color::DarkGray);
         if self.mode == Mode::Request {
             block = Block::bordered().set_style(Color::White);
@@ -137,11 +129,6 @@ impl Home {
 
         let tabs = RequestTab::iter().map(|tab| tab.title()).collect::<Vec<_>>();
         let tabs = Tabs::new(tabs).highlight_style((Color::default(), self.selected_req_tab.palette().c900)).block(block);
-
-        self.clickable.push(Clickable {
-            rect: area,
-            mode: Mode::Request,
-        });
 
         frame.render_widget(tabs, area);
     }
@@ -178,9 +165,9 @@ impl Component for Home {
                 row,
                 ..
             } => {
-                for c in &self.clickable {
-                    if c.rect.contains(Position { x: column, y: row }) {
-                        self.mode = c.mode;
+                for (mode, rect) in self.clickable.iter() {
+                    if rect.contains(Position { x: column, y: row }) {
+                        self.mode = *mode;
                         break;
                     }
                 }
