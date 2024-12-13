@@ -3,28 +3,15 @@ use std::collections::HashMap;
 use color_eyre::Result;
 use crossterm::event::{KeyEvent, MouseEvent, MouseEventKind};
 use ratatui::prelude::*;
-use ratatui::style::{palette::tailwind, Styled};
-use ratatui::widgets::{Block, Borders, Padding, Paragraph, Tabs};
-use strum::{Display, EnumIter, FromRepr, IntoEnumIterator};
+use ratatui::style::Styled;
+use ratatui::widgets::{Block, Borders};
 use tokio::sync::mpsc::UnboundedSender;
 use tui_textarea::TextArea;
 
 use super::Component;
 use crate::app::Mode;
 use crate::{action::Action, config::Config, PKG_NAME};
-
-#[derive(Default, Display, FromRepr, EnumIter, Clone, Copy)]
-enum RequestTab {
-    #[default]
-    #[strum(to_string = "Query")]
-    Query,
-    #[strum(to_string = "Body")]
-    Body,
-    #[strum(to_string = "Headers")]
-    Headers,
-    #[strum(to_string = "Auth")]
-    Auth,
-}
+use crate::components::request::Request;
 
 #[derive(Default)]
 pub struct Home {
@@ -33,69 +20,7 @@ pub struct Home {
     mode: Mode,
     clickable: HashMap<Mode, Rect>,
     url_input: TextArea<'static>,
-    selected_req_tab: RequestTab,
-}
-
-impl RequestTab {
-    #[allow(dead_code)]
-    fn previous(self) -> Self {
-        let current_idx: usize = self as usize;
-        let previous_idx = current_idx.saturating_sub(1);
-
-        Self::from_repr(previous_idx).unwrap_or(self)
-    }
-
-    #[allow(dead_code)]
-    fn next(self) -> Self {
-        let current_idx: usize = self as usize;
-        let next_idx = current_idx.saturating_add(1);
-
-        Self::from_repr(next_idx).unwrap_or(self)
-    }
-
-    const fn palette(self) -> tailwind::Palette {
-        match self {
-            Self::Query => tailwind::BLUE,
-            Self::Body => tailwind::GREEN,
-            Self::Headers => tailwind::YELLOW,
-            Self::Auth => tailwind::RED,
-        }
-    }
-
-    fn block(self) -> Block<'static> {
-        Block::bordered().border_set(symbols::border::PROPORTIONAL_TALL).padding(Padding::horizontal(1)).border_style(self.palette().c700)
-    }
-
-    fn title(self) -> Line<'static> {
-        format!("  {self}  ").fg(tailwind::SLATE.c200).bg(self.palette().c900).into()
-    }
-
-    fn render_tab_query(self, area: Rect, buf: &mut Buffer) {
-        Paragraph::new("Query").block(self.block()).render(area, buf);
-    }
-
-    fn render_tab_body(self, area: Rect, buf: &mut Buffer) {
-        Paragraph::new("Body").block(self.block()).render(area, buf);
-    }
-
-    fn render_tab_headers(self, area: Rect, buf: &mut Buffer) {
-        Paragraph::new("Headers").block(self.block()).render(area, buf);
-    }
-
-    fn render_tab_auth(self, area: Rect, buf: &mut Buffer) {
-        Paragraph::new("Auth").block(self.block()).render(area, buf);
-    }
-}
-
-impl Widget for RequestTab {
-    fn render(self, area: Rect, buf: &mut Buffer) {
-        match self {
-            Self::Query => self.render_tab_query(area, buf),
-            Self::Body => self.render_tab_body(area, buf),
-            Self::Headers => self.render_tab_headers(area, buf),
-            Self::Auth => self.render_tab_auth(area, buf),
-        }
-    }
+    request: Request,
 }
 
 impl Home {
@@ -119,18 +44,10 @@ impl Home {
         frame.render_widget(&self.url_input, area);
     }
 
-    fn render_tabs(&mut self, frame: &mut Frame, area: Rect) {
+    fn render_tabs(&mut self, frame: &mut Frame, area: Rect) -> Result<()> {
         self.clickable.insert(Mode::Request, area);
 
-        let mut block = Block::bordered().set_style(Color::DarkGray);
-        if self.mode == Mode::Request {
-            block = Block::bordered().set_style(Color::White);
-        }
-
-        let tabs = RequestTab::iter().map(|tab| tab.title()).collect::<Vec<_>>();
-        let tabs = Tabs::new(tabs).highlight_style((Color::default(), self.selected_req_tab.palette().c900)).block(block);
-
-        frame.render_widget(tabs, area);
+        self.request.draw(frame, area)
     }
 }
 
@@ -153,6 +70,7 @@ impl Component for Home {
                 self.url_input.input(key);
                 Ok(None)
             }
+            Mode::Request => self.request.handle_key_event(key),
             _ => Ok(None)
         }
     }
@@ -210,7 +128,8 @@ impl Component for Home {
 
         frame.render_widget(title, title_area);
         self.render_url_input(frame, url_area);
-        self.render_tabs(frame, req_area);
+        self.render_tabs(frame, req_area)?;
+
         Ok(())
     }
 }
