@@ -1,10 +1,10 @@
 use color_eyre::Result;
-use crossterm::event::{KeyEvent, KeyEventKind, KeyCode, MouseEvent};
-use ratatui::prelude::*;
-use ratatui::Frame;
+use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, MouseEvent};
 use ratatui::layout::Rect;
+use ratatui::prelude::*;
 use ratatui::style::{palette::tailwind, Stylize};
 use ratatui::widgets::{Block, Padding, Paragraph, Tabs};
+use ratatui::Frame;
 use strum::{Display, EnumIter, FromRepr, IntoEnumIterator};
 use tokio::sync::mpsc::UnboundedSender;
 
@@ -57,7 +57,10 @@ impl SelectedTab {
     }
 
     fn title(self) -> Line<'static> {
-        format!("  {self}  ").fg(tailwind::SLATE.c900).bg(self.palette().c900).into()
+        format!("  {self}  ")
+            .fg(tailwind::SLATE.c900)
+            .bg(self.palette().c900)
+            .into()
     }
 
     fn block(self) -> Block<'static> {
@@ -65,7 +68,9 @@ impl SelectedTab {
     }
 
     fn render_tab_query(self, area: Rect, buf: &mut Buffer) {
-        Paragraph::new("Query").block(self.block()).render(area, buf);
+        Paragraph::new("Query")
+            .block(self.block())
+            .render(area, buf);
     }
 
     fn render_tab_body(self, area: Rect, buf: &mut Buffer) {
@@ -73,7 +78,9 @@ impl SelectedTab {
     }
 
     fn render_tab_headers(self, area: Rect, buf: &mut Buffer) {
-        Paragraph::new("Headers").block(self.block()).render(area, buf);
+        Paragraph::new("Headers")
+            .block(self.block())
+            .render(area, buf);
     }
 
     fn render_tab_auth(self, area: Rect, buf: &mut Buffer) {
@@ -87,9 +94,7 @@ impl Request {
     }
 
     fn render_footer(&self, area: Rect, buf: &mut Buffer) {
-        Line::raw("◄ ► to change tab")
-            .centered()
-            .render(area, buf);
+        Line::raw("◄ ► to change tab").centered().render(area, buf);
     }
 
     fn render_tabs(&self, area: Rect, buf: &mut Buffer) {
@@ -97,7 +102,12 @@ impl Request {
         let highlight_style = (Color::default(), self.selected_tab.palette().c700);
         let selected_tab_idx = self.selected_tab as usize;
 
-        Tabs::new(titles).highlight_style(highlight_style).select(selected_tab_idx).padding("", "").divider(" ").render(area, buf);
+        Tabs::new(titles)
+            .highlight_style(highlight_style)
+            .select(selected_tab_idx)
+            .padding("", "")
+            .divider(" ")
+            .render(area, buf);
     }
 
     fn next_tab(&mut self) {
@@ -111,7 +121,11 @@ impl Request {
 
 impl Widget for &mut Request {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let vertical = Layout::vertical([Constraint::Length(1), Constraint::Min(0), Constraint::Length(1)]);
+        let vertical = Layout::vertical([
+            Constraint::Length(1),
+            Constraint::Min(0),
+            Constraint::Length(1),
+        ]);
         let [header_area, inner_area, footer_area] = vertical.areas(area);
 
         self.render_tabs(header_area, buf);
@@ -144,10 +158,18 @@ impl Component for Request {
 
     fn handle_key_event(&mut self, key: KeyEvent) -> Result<Option<Action>> {
         match key {
-            KeyEvent { kind: KeyEventKind::Press, code: KeyCode::Left, .. } => {
+            KeyEvent {
+                kind: KeyEventKind::Press,
+                code: KeyCode::Left,
+                ..
+            } => {
                 self.previous_tab();
             }
-            KeyEvent { kind: KeyEventKind::Press, code: KeyCode::Right, .. } => {
+            KeyEvent {
+                kind: KeyEventKind::Press,
+                code: KeyCode::Right,
+                ..
+            } => {
                 self.next_tab();
             }
             _ => {}

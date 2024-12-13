@@ -10,8 +10,8 @@ use tui_textarea::TextArea;
 
 use super::Component;
 use crate::app::Mode;
-use crate::{action::Action, config::Config, PKG_NAME};
 use crate::components::request::Request;
+use crate::{action::Action, config::Config, PKG_NAME};
 
 #[derive(Default)]
 pub struct Home {
@@ -32,13 +32,24 @@ impl Home {
         self.clickable.insert(Mode::Url, area);
 
         self.url_input.set_placeholder_text("Enter a URL...");
-        self.url_input.set_cursor_line_style(Style::default().fg(Color::White));
+        self.url_input
+            .set_cursor_line_style(Style::default().fg(Color::White));
 
         let info = "Press <Enter> to send request";
         if self.mode == Mode::Url {
-            self.url_input.set_block(Block::default().borders(Borders::ALL).set_style(Color::White).title(info));
+            self.url_input.set_block(
+                Block::default()
+                    .borders(Borders::ALL)
+                    .set_style(Color::White)
+                    .title(info),
+            );
         } else {
-            self.url_input.set_block(Block::default().borders(Borders::ALL).set_style(Color::DarkGray).title(info));
+            self.url_input.set_block(
+                Block::default()
+                    .borders(Borders::ALL)
+                    .set_style(Color::DarkGray)
+                    .title(info),
+            );
         }
 
         frame.render_widget(&self.url_input, area);
@@ -71,7 +82,7 @@ impl Component for Home {
                 Ok(None)
             }
             Mode::Request => self.request.handle_key_event(key),
-            _ => Ok(None)
+            _ => Ok(None),
         }
     }
 
@@ -119,7 +130,8 @@ impl Component for Home {
             Constraint::Length(2),
             Constraint::Length(3),
             Constraint::Percentage(100),
-        ]).split(area);
+        ])
+        .split(area);
         let title_area = main_area[0];
         let url_area = main_area[1];
         let [req_area, _resp_area] =
