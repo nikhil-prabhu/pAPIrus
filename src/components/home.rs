@@ -1,10 +1,9 @@
-use std::collections::HashMap;
-
 use color_eyre::Result;
 use crossterm::event::{KeyEvent, MouseEvent, MouseEventKind};
 use ratatui::prelude::*;
 use ratatui::style::Styled;
 use ratatui::widgets::{Block, Borders};
+use std::collections::HashMap;
 use tokio::sync::mpsc::UnboundedSender;
 use tui_textarea::TextArea;
 
@@ -26,6 +25,21 @@ pub struct Home {
 impl Home {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    fn render_title(&self, frame: &mut Frame, area: Rect) {
+        let app_name = Span::styled(
+            format!(" {} ", PKG_NAME.to_uppercase()),
+            Style::default()
+                .fg(Color::LightGreen)
+                .add_modifier(Modifier::BOLD),
+        );
+        let title = Block::bordered()
+            .borders(Borders::TOP)
+            .title(app_name)
+            .title_alignment(Alignment::Center);
+
+        frame.render_widget(title, area);
     }
 
     fn render_url_input(&mut self, frame: &mut Frame, area: Rect) {
@@ -121,24 +135,19 @@ impl Component for Home {
     }
 
     fn draw(&mut self, frame: &mut Frame, area: Rect) -> Result<()> {
-        let title = Block::new()
-            .borders(Borders::TOP)
-            .title(format!(" {PKG_NAME} "))
-            .title_alignment(Alignment::Center);
-
         let main_area = Layout::vertical([
             Constraint::Length(2),
             Constraint::Length(3),
             Constraint::Percentage(100),
         ])
-        .split(area);
+            .split(area);
         let title_area = main_area[0];
         let url_area = main_area[1];
         let [req_area, _resp_area] =
             Layout::horizontal([Constraint::Percentage(50), Constraint::Percentage(50)])
                 .areas(main_area[2]);
 
-        frame.render_widget(title, title_area);
+        self.render_title(frame, title_area);
         self.render_url_input(frame, url_area);
         self.render_tabs(frame, req_area)?;
 
